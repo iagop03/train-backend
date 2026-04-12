@@ -1,0 +1,125 @@
+# Cloud SQL Monitoring and Alerting Configuration
+apiVersion: monitoring.googleapis.com/v3
+kind: AlertPolicy
+metadata:
+  displayName: "Cloud SQL - CPU Utilization High"
+spec:
+  conditions:
+    - displayName: "CPU utilization > 80%"
+      conditionThreshold:
+        filter: |
+          resource.type="cloudsql_database"
+          metric.type="cloudsql.googleapis.com/database/cpu/utilization"
+          resource.label.database_id=~".*train-postgres-prod"
+        comparison: COMPARISON_GT
+        thresholdValue: 0.8
+        duration: "300s"
+        aggregations:
+          - alignmentPeriod: "60s"
+            perSeriesAligner: ALIGN_MEAN
+  combiner: OR
+  enabled: true
+  notificationChannels:
+    - "projects/PROJECT_ID/notificationChannels/CHANNEL_ID"
+  alertStrategy:
+    autoClose: "86400s"
+---
+apiVersion: monitoring.googleapis.com/v3
+kind: AlertPolicy
+metadata:
+  displayName: "Cloud SQL - Disk Utilization High"
+spec:
+  conditions:
+    - displayName: "Disk utilization > 85%"
+      conditionThreshold:
+        filter: |
+          resource.type="cloudsql_database"
+          metric.type="cloudsql.googleapis.com/database/disk/utilization"
+          resource.label.database_id=~".*train-postgres-prod"
+        comparison: COMPARISON_GT
+        thresholdValue: 0.85
+        duration: "300s"
+        aggregations:
+          - alignmentPeriod: "60s"
+            perSeriesAligner: ALIGN_MEAN
+  combiner: OR
+  enabled: true
+  notificationChannels:
+    - "projects/PROJECT_ID/notificationChannels/CHANNEL_ID"
+  alertStrategy:
+    autoClose: "86400s"
+---
+apiVersion: monitoring.googleapis.com/v3
+kind: AlertPolicy
+metadata:
+  displayName: "Cloud SQL - Database Connections High"
+spec:
+  conditions:
+    - displayName: "Database connections > 150"
+      conditionThreshold:
+        filter: |
+          resource.type="cloudsql_database"
+          metric.type="cloudsql.googleapis.com/database/network/connections"
+          resource.label.database_id=~".*train-postgres-prod"
+        comparison: COMPARISON_GT
+        thresholdValue: 150
+        duration: "300s"
+        aggregations:
+          - alignmentPeriod: "60s"
+            perSeriesAligner: ALIGN_MEAN
+  combiner: OR
+  enabled: true
+  notificationChannels:
+    - "projects/PROJECT_ID/notificationChannels/CHANNEL_ID"
+  alertStrategy:
+    autoClose: "86400s"
+---
+apiVersion: monitoring.googleapis.com/v3
+kind: AlertPolicy
+metadata:
+  displayName: "Cloud SQL - Backup Failed"
+spec:
+  conditions:
+    - displayName: "Backup completion status"
+      conditionThreshold:
+        filter: |
+          resource.type="cloudsql_database"
+          metric.type="cloudsql.googleapis.com/database/backup/status"
+          resource.label.database_id=~".*train-postgres-prod"
+        comparison: COMPARISON_NE
+        thresholdValue: 1
+        duration: "3600s"
+        aggregations:
+          - alignmentPeriod: "60s"
+            perSeriesAligner: ALIGN_MAX
+  combiner: OR
+  enabled: true
+  notificationChannels:
+    - "projects/PROJECT_ID/notificationChannels/CHANNEL_ID"
+  alertStrategy:
+    autoClose: "86400s"
+---
+apiVersion: monitoring.googleapis.com/v3
+kind: AlertPolicy
+metadata:
+  displayName: "Cloud SQL - Replication Lag High"
+spec:
+  conditions:
+    - displayName: "Replication lag > 10 seconds"
+      conditionThreshold:
+        filter: |
+          resource.type="cloudsql_database"
+          metric.type="cloudsql.googleapis.com/database/replication/replica_lag"
+          resource.label.database_id=~".*train-postgres-prod"
+        comparison: COMPARISON_GT
+        thresholdValue: 10
+        duration: "300s"
+        aggregations:
+          - alignmentPeriod: "60s"
+            perSeriesAligner: ALIGN_MAX
+  combiner: OR
+  enabled: true
+  notificationChannels:
+    - "projects/PROJECT_ID/notificationChannels/CHANNEL_ID"
+  alertStrategy:
+    autoClose: "86400s"
