@@ -1,0 +1,64 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:train-db-prod.c.train-ai-gym.internal}:5432/train_production
+    username: ${DB_USERNAME:train_user}
+    password: sm://${project.id}/train-db-password-production
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+  data:
+    mongodb:
+      uri: ${sm://${project.id}/train-mongodb-uri-production}
+      auto-index-creation: false
+
+logging:
+  level:
+    root: WARN
+    com.train: INFO
+    org.springframework.web: WARN
+  file:
+    name: /var/log/train/train-backend-production.log
+    max-size: 500MB
+    max-history: 60
+    total-size-cap: 10GB
+
+server:
+  port: 8080
+  compression:
+    enabled: true
+    min-response-size: 1024
+  error:
+    include-stacktrace: never
+    include-message: always
+  http2:
+    enabled: true
+
+keycloak:
+  ssl-required: all
+  auth-server-url: ${sm://${project.id}/train-keycloak-url-production}
+  credentials:
+    secret: ${sm://${project.id}/train-keycloak-secret-production}
+
+app:
+  api-base-url: https://api.train-ai-gym.com
+  cors:
+    allowed-origins: https://train-ai-gym.com,https://app.train-ai-gym.com
+  jwt:
+    validation: true
+  security:
+    require-https: true

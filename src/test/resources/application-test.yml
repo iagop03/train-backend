@@ -1,0 +1,35 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    database-platform: org.hibernate.dialect.H2Dialect
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/train_test
+      auto-index-creation: true
+
+logging:
+  level:
+    root: WARN
+    com.train: DEBUG
+
+server:
+  port: 0
+
+keycloak:
+  ssl-required: none
+
+app:
+  environment: test
+  api-base-url: http://localhost
+  jwt:
+    validation: false

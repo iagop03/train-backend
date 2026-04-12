@@ -1,0 +1,77 @@
+steps:
+  # Build Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/train-backend:latest'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/train-backend:prod-$COMMIT_SHA'
+      - '--build-arg'
+      - 'PROFILE=production'
+      - '.'
+
+  # Push to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/train-backend:latest'
+
+  # Deploy to Cloud Run with canary
+  - name: 'gcr.io/cloud-builders/run'
+    args:
+      - 'deploy'
+      - 'train-backend'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/train-backend:latest'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--no-allow-unauthenticated'
+      - '--set-env-vars'
+      - 'SPRING_PROFILES_ACTIVE=production,ENVIRONMENT=production,GCP_PROJECT_ID=$PROJECT_ID'
+      - '--memory'
+      - '4Gi'
+      - '--cpu'
+      - '4'
+      - '--timeout'
+      - '3600'
+      - '--vpc-connector'
+      - 'train-connector'
+      - '--service-account'
+      - 'train-backend-prod@$PROJECT_ID.iam.gserviceaccount.com'
+
+  # Health check before traffic shift
+  - name: 'gcr.io/cloud-builders/gke-deploy'
+    args:
+      - 'run'
+      - '--filename=deploy/k8s-prod'
+      - '--location=us-central1-a'
+      - '--cluster=train-cluster'
+
+  # Smoke tests
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args:
+      - 'run'
+      - 'train-backend-smoke-tests'
+      - '--image=gcr.io/$PROJECT_ID/train-backend:latest'
+      - '--rm'
+      - '--restart=Never'
+      - '--'
+      - 'sh'
+      - '-c'
+      - 'curl -f https://api.train-ai-gym.com/api/health'
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=train-cluster'
+
+images:
+  - 'gcr.io/$PROJECT_ID/train-backend:latest'
+  - 'gcr.io/$PROJECT_ID/train-backend:prod-$COMMIT_SHA'
+
+options:
+  machineType: 'N1_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
+
+logsBucket: 'gs://$PROJECT_ID-build-logs'

@@ -1,0 +1,43 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/train_dev
+    username: train_user
+    password: train_pass_dev
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/train_dev
+
+logging:
+  level:
+    root: DEBUG
+    com.train: TRACE
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  file:
+    name: logs/dev/train-backend.log
+
+server:
+  port: 8080
+  error:
+    include-stacktrace: always
+    include-message: always
+
+keycloak:
+  ssl-required: none
+
+app:
+  api-base-url: http://localhost:8080
+  cors:
+    allowed-origins: http://localhost:4200,http://localhost:3000
+  jwt:
+    validation: false

@@ -1,0 +1,53 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:train-db-staging.c.train-ai-gym.internal}:5432/train_staging
+    username: ${DB_USERNAME:train_user}
+    password: sm://${project.id}/train-db-password-staging
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+  data:
+    mongodb:
+      uri: ${sm://${project.id}/train-mongodb-uri-staging}
+      auto-index-creation: false
+
+logging:
+  level:
+    root: INFO
+    com.train: INFO
+    org.springframework.web: WARN
+  file:
+    name: /var/log/train/train-backend-staging.log
+    max-size: 100MB
+    max-history: 30
+
+server:
+  port: 8080
+  compression:
+    enabled: true
+    min-response-size: 1024
+  error:
+    include-stacktrace: on_param
+    include-message: on_param
+
+keycloak:
+  ssl-required: external
+  auth-server-url: ${sm://${project.id}/train-keycloak-url-staging}
+  credentials:
+    secret: ${sm://${project.id}/train-keycloak-secret-staging}
+
+app:
+  api-base-url: https://api-staging.train-ai-gym.com
+  cors:
+    allowed-origins: https://staging.train-ai-gym.com,https://app-staging.train-ai-gym.com
+  jwt:
+    validation: true

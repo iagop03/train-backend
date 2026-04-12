@@ -1,0 +1,69 @@
+steps:
+  # Build Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/train-backend:staging-latest'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/train-backend:staging-$COMMIT_SHA'
+      - '--build-arg'
+      - 'PROFILE=staging'
+      - '.'
+
+  # Push to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/train-backend:staging-latest'
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/cloud-builders/run'
+    args:
+      - 'deploy'
+      - 'train-backend-staging'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/train-backend:staging-latest'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--no-allow-unauthenticated'
+      - '--set-env-vars'
+      - 'SPRING_PROFILES_ACTIVE=staging,ENVIRONMENT=staging,GCP_PROJECT_ID=$PROJECT_ID'
+      - '--memory'
+      - '2Gi'
+      - '--cpu'
+      - '2'
+      - '--timeout'
+      - '3600'
+      - '--vpc-connector'
+      - 'train-connector'
+
+  # Run database migrations
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args:
+      - 'run'
+      - 'train-backend-migrate-staging'
+      - '--image=gcr.io/$PROJECT_ID/train-backend:staging-latest'
+      - '--rm'
+      - '--restart=Never'
+      - '--env'
+      - 'SPRING_PROFILES_ACTIVE=staging'
+      - '--'
+      - 'java'
+      - '-jar'
+      - 'app.jar'
+      - '--spring.jpa.hibernate.ddl-auto=validate'
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=train-cluster'
+
+images:
+  - 'gcr.io/$PROJECT_ID/train-backend:staging-latest'
+
+options:
+  machineType: 'N1_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
+
+logsBucket: 'gs://$PROJECT_ID-build-logs'

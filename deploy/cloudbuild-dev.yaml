@@ -1,0 +1,47 @@
+steps:
+  # Build Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/train-backend:dev-latest'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/train-backend:dev-$COMMIT_SHA'
+      - '--build-arg'
+      - 'PROFILE=dev'
+      - '.'
+
+  # Push to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/train-backend:dev-latest'
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/cloud-builders/run'
+    args:
+      - 'deploy'
+      - 'train-backend-dev'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/train-backend:dev-latest'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--set-env-vars'
+      - 'SPRING_PROFILES_ACTIVE=dev,ENVIRONMENT=dev'
+      - '--memory'
+      - '1Gi'
+      - '--cpu'
+      - '1'
+      - '--timeout'
+      - '3600'
+
+images:
+  - 'gcr.io/$PROJECT_ID/train-backend:dev-latest'
+
+options:
+  machineType: 'N1_HIGHCPU_8'
+
+logsBucket: 'gs://$PROJECT_ID-build-logs'
