@@ -1,46 +1,50 @@
-# Gradle
-.gradle/
-build/
-*.gradle
-gradle.properties
-
-# Maven
-target/
-pom.xml.tag
-pom.xml.releaseBackup
-
 # IDE
 .idea/
 .vscode/
-*.iml
-*.iws
-*.ipr
-.classpath
-.project
-.settings/
 *.swp
 *.swo
-*~
-
-# OS
+*.swn
 .DS_Store
-Thumbs.db
+
+# Maven
+target/
+*.jar
+*.war
+*.rar
+*.ear
+
+# Build
+.gradle/
+build/
 
 # Environment
 .env
 .env.local
-.env.*.local
+*.properties.local
 
 # Logs
-logs/
 *.log
-log.txt
+logs/
 
-# Database
-*.db
-*.sqlite
+# Test coverage
+*.jacoco
+.coverage
+coverage/
 
-# Application
-out/
-dist/
-.mvn/wrapper/maven-wrapper.jar
+# Node (for frontend integration)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Docker
+.dockerignore
+
+# OS
+Thumbs.db
+.DS_Store
+
+# IDE settings
+*.iml
+*.classpath
+*.project
+.settings/

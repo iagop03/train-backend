@@ -1,23 +1,17 @@
 # TrAIn Backend Code Owners
-# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
-# Global owners
+# Default owners for backend repository
 * @iagop03
 
-# Backend specific
-src/main/java/ @iagop03
-src/test/java/ @iagop03
-
-# Configuration
-src/main/resources/ @iagop03
-pom.xml @iagop03
-build.gradle* @iagop03
-
-# DevOps
+# Configuration and deployment
+/.github/ @iagop03
+/pom.xml @iagop03
 Dockerfile @iagop03
-docker-compose.yml @iagop03
-.github/ @iagop03
 
-# Security
-src/main/java/com/train/security/ @iagop03
-src/main/java/com/train/config/SecurityConfig.java @iagop03
+# Security and authentication
+/src/main/java/com/train/security/ @iagop03
+/src/main/java/com/train/auth/ @iagop03
+
+# Database and persistence
+/src/main/java/com/train/persistence/ @iagop03
+/src/main/resources/db/migration/ @iagop03

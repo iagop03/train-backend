@@ -1,113 +1,85 @@
 # Guía de Contribución - TrAIn Backend
 
-## Código de Conducta
+## Comenzar
 
-Este proyecto se adhiere al [Código de Conducta Contributor Covenant](CODE_OF_CONDUCT.md).
+1. Fork el repositorio
+2. Clona tu fork: `git clone https://github.com/tu-usuario/train-backend.git`
+3. Añade el repositorio upstream: `git remote add upstream https://github.com/iagop03/train-backend.git`
+4. Crea una rama para tu feature: `git checkout -b feature/TRAIN-XXX-descripcion`
 
-## ¿Cómo contribuir?
+## Requisitos
 
-### Reportar bugs
+- Java 21+
+- Maven 3.8+
+- PostgreSQL 15+
+- Docker (opcional, recomendado)
 
-1. Verifica si el bug ya ha sido reportado en [Issues](https://github.com/iagop03/train-backend/issues)
-2. Si no existe, crea un nuevo issue con:
-   - Título descriptivo
-   - Descripción detallada
-   - Pasos para reproducir
-   - Comportamiento esperado vs actual
-   - Screenshots si aplica
-
-### Sugerir mejoras
-
-1. Usa la etiqueta `enhancement` en los issues
-2. Proporciona descripción clara del caso de uso
-3. Lista alternativas consideradas
-
-### Pull Requests
-
-#### Setup
+## Configuración Local
 
 ```bash
-git clone https://github.com/iagop03/train-backend.git
-cd train-backend
-git checkout -b feature/TRAIN-XXX-descripcion
-```
+# Instalar dependencias
+mvn clean install
 
-#### Commit
-
-Seguir [Conventional Commits](https://www.conventionalcommits.org/):
-
-```
-feat(auth): agregar autenticación OAuth2
-fix(users): corregir validación de email
-docs(api): actualizar documentación de endpoints
-```
-
-#### Antes de hacer Push
-
-```bash
-# Run tests
+# Ejecutar tests
 mvn test
 
-# Run analysis
-mvn clean verify
-
-# Check formatting
-mvn spotless:check
+# Ejecutar la aplicación
+mvn spring-boot:run
 ```
 
-#### Enviar PR
+## Estándares de Código
 
-1. Push a tu fork
-2. Abre un PR contra `main` o `develop`
-3. Usa la plantilla de PR
-4. Completa todos los checkpoints
-5. Espera revisión (2+ aprobaciones requeridas)
+- Sigue el Google Java Style Guide
+- Usa nombres descriptivos en inglés
+- Comenta código complejo
+- Escribe tests para nuevas funcionalidades
+- Mantén cobertura de código > 80%
 
-## Estándares de código
+## Convenciones de Commits
 
-### Estilo Java
+```
+[TRAIN-XXX] Tipo: Descripción breve
 
-- Java 21 features
-- Google Java Style Guide
-- Máximo 120 caracteres por línea
-- 4 espacios de indentación
+Descripción detallada si es necesario.
 
-### Naming
-
-- Clases: `PascalCase`
-- Métodos/variables: `camelCase`
-- Constantes: `UPPER_SNAKE_CASE`
-- Paquetes: `com.train.feature`
-
-### Testing
-
-- Mínimo 80% de cobertura
-- Unit tests para lógica de negocio
-- Integration tests para controllers
-- Tests descriptivos
-
-```java
-@Test
-void shouldReturnUserWhenIdExists() {
-    // Given
-    Long userId = 1L;
-    User expected = new User(userId, "John");
-    when(repository.findById(userId)).thenReturn(Optional.of(expected));
-
-    // When
-    User actual = service.getUserById(userId);
-
-    // Then
-    assertEquals(expected, actual);
-}
+Tipos permitidos:
+- feat: Nueva funcionalidad
+- fix: Corrección de bug
+- refactor: Refactorización de código
+- test: Añadir o actualizar tests
+- docs: Cambios en documentación
+- style: Cambios de formato
+- chore: Cambios en dependencias o configuración
 ```
 
-## Proceso de revisión
+## Pull Request Process
 
-1. **Automated checks**: CI pipeline debe pasar
-2. **Code review**: 2+ approvals de maintainers
-3. **Approval**: Squash & merge a main/develop
+1. Asegúrate de que tu rama está actualizada: `git pull upstream develop`
+2. Ejecuta tests localmente: `mvn test`
+3. Push a tu fork y crea un PR contra `develop`
+4. Llena el PR template completamente
+5. Espera a que los CI checks pasen
+6. Solicita revisión de al menos 1 maintainer
+7. Responde a comentarios de revisión
+8. Merge solo después de aprobación
 
-## Licencia
+## Reportar Bugs
 
-Al contribuir, aceptas que tu código será bajo licencia MIT.
+Abre un issue con:
+- Descripción clara del bug
+- Pasos para reproducir
+- Comportamiento esperado vs actual
+- Stack trace si aplica
+- Versión Java y SO
+
+## Sugerir Mejoras
+
+Abre un issue con:
+- Descripción clara de la mejora
+- Caso de uso
+- Beneficios
+- Posibles alternativas
+
+## Preguntas
+
+Para preguntas, abre una discussion o contacta a @iagop03

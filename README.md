@@ -1,90 +1,56 @@
 # TrAIn Backend
 
-Backend para la aplicación TrAIn (AI gym tracker) - Rastreador de ejercicios con IA.
+![CI Pipeline - Backend](https://github.com/iagop03/train-backend/actions/workflows/ci.yml/badge.svg)
 
-## Tech Stack
+Backend para la aplicación TrAIn (AI gym tracker) construido con Spring Boot 3 y Java 21.
 
-- **Java 21**
-- **Spring Boot 3.x**
-- **Spring Security + Keycloak** (Autenticación)
-- **PostgreSQL** (Cloud SQL)
-- **MongoDB Atlas** (Datos no estructurados)
-- **GCP** (Cloud Platform)
-- **Maven** (Build tool)
+## Características
 
-## Requisitos previos
+- ✅ Spring Boot 3
+- ✅ Java 21
+- ✅ PostgreSQL Cloud SQL
+- ✅ MongoDB Atlas
+- ✅ Keycloak Authentication
+- ✅ RESTful APIs
+- ✅ CI/CD con GitHub Actions
+
+## Requisitos
 
 - Java 21+
-- Maven 3.9+
-- Docker & Docker Compose
+- Maven 3.8+
 - PostgreSQL 15+
-- MongoDB 6+
+- Docker (opcional)
 
 ## Instalación
 
 ```bash
-# Clonar repositorio
 git clone https://github.com/iagop03/train-backend.git
 cd train-backend
-
-# Instalar dependencias
 mvn clean install
+```
 
-# Ejecutar con Docker Compose
-docker-compose up -d
+## Desarrollo
 
-# Ejecutar aplicación
+```bash
 mvn spring-boot:run
 ```
 
-## Estructura del proyecto
+La aplicación estará disponible en `http://localhost:8080`
 
-```
-src/
-├── main/
-│   ├── java/com/train/
-│   │   ├── api/
-│   │   ├── domain/
-│   │   ├── service/
-│   │   ├── repository/
-│   │   ├── config/
-│   │   ├── security/
-│   │   └── exception/
-│   └── resources/
-│       ├── application.yml
-│       ├── application-dev.yml
-│       └── application-prod.yml
-└── test/
-    └── java/com/train/
-```
-
-## Scripts disponibles
+## Testing
 
 ```bash
-# Tests
-mvn test                    # Ejecutar tests unitarios
-mvn verify                  # Ejecutar tests + análisis
-
-# Build
-mvn clean package           # Build del proyecto
-mvn spring-boot:run         # Ejecutar en desarrollo
-
-# Docker
-docker-compose up           # Iniciar infraestructura
-docker-compose down         # Parar infraestructura
-```
-
-## Documentación de API
-
-La documentación Swagger está disponible en:
-```
-http://localhost:8080/swagger-ui.html
+mvn test
 ```
 
 ## Contribuir
 
-Ver [CONTRIBUTING.md](CONTRIBUTING.md)
+Por favor, lee [CONTRIBUTING.md](CONTRIBUTING.md) para detalles de nuestro código de conducta y proceso para enviarnos pull requests.
 
 ## Licencia
 
-MIT
+Este proyecto está bajo licencia MIT.
+
+## Contacto
+
+Para preguntas o sugerencias, contacta a [@iagop03](https://github.com/iagop03)
