@@ -1,51 +1,94 @@
 # TrAIn Backend
 
-**AI Gym Tracker** - Backend Spring Boot 3
+Spring Boot 3 backend para TrAIn - AI Gym Tracker.
 
-API REST para la aplicación de seguimiento de ejercicios en el gimnasio.
+## Stack Tecnológico
 
-## Características
+- **Java 21**
+- **Spring Boot 3.x**
+- **PostgreSQL Cloud SQL**
+- **MongoDB Atlas**
+- **Keycloak** (Autenticación/Autorización)
+- **Google Cloud Platform**
 
-- ✅ API REST con Spring Boot 3 (Java 21)
-- ✅ Autenticación con Keycloak
-- ✅ PostgreSQL Cloud SQL
-- ✅ MongoDB Atlas para datos no relacionales
-- ✅ CI/CD con GitHub Actions
-- ✅ Desplegable en GCP
+## Prerequisitos
 
-## Tecnologías
+- JDK 21+
+- Maven 3.8+
+- PostgreSQL 14+
+- MongoDB 5.0+
+- Keycloak 22+
 
-- **Framework**: Spring Boot 3.2.x
-- **Java**: 21
-- **Base de datos**: PostgreSQL 15, MongoDB
-- **Autenticación**: Keycloak
-- **Testing**: JUnit 5, Mockito
-- **Cloud**: Google Cloud Platform
-
-## Inicio Rápido
+## Instalación
 
 ```bash
 # Clonar repositorio
 git clone https://github.com/iagop03/train-backend.git
 cd train-backend
 
-# Instalar dependencias
-mvn clean install
+# Configurar variables de entorno
+cp .env.example .env
 
-# Ejecutar aplicación
-mvn spring-boot:run
+# Build
+mvn clean package
+
+# Ejecutar
+java -jar target/train-backend.jar
 ```
 
-La aplicación estará disponible en `http://localhost:8080`
+## Estructura del Proyecto
 
-## Documentación
+```
+src/
+├── main/
+│   ├── java/com/train/
+│   │   ├── controller/
+│   │   ├── service/
+│   │   ├── repository/
+│   │   ├── entity/
+│   │   ├── dto/
+│   │   ├── config/
+│   │   ├── security/
+│   │   └── exception/
+│   └── resources/
+│       ├── application.yml
+│       └── db/migration/
+└── test/
+```
 
-Ver [CONTRIBUTING.md](CONTRIBUTING.md) para instrucciones de desarrollo.
+## API Endpoints
 
-## API Documentation
+### Authentication
+- `POST /api/v1/auth/login`
+- `POST /api/v1/auth/register`
+- `POST /api/v1/auth/refresh`
+- `POST /api/v1/auth/logout`
 
-Swagger UI disponible en `/swagger-ui.html`
+### Users
+- `GET /api/v1/users/{id}`
+- `PUT /api/v1/users/{id}`
+- `DELETE /api/v1/users/{id}`
 
-## Licencia
+## Testing
 
-MIT
+```bash
+# Unit tests
+mvn test
+
+# Integration tests
+mvn test -Pintegration
+
+# Coverage
+mvn jacoco:report
+```
+
+## Contributing
+
+1. Crear feature branch: `git checkout -b feature/TRAIN-XXX`
+2. Commit changes: `git commit -am 'feat: descripción'`
+3. Push a branch: `git push origin feature/TRAIN-XXX`
+4. Abrir Pull Request
+
+## License
+
+MIT License

@@ -1,47 +1,46 @@
+# Gradle
+.gradle/
+build/
+*.gradle
+gradle.properties
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+
 # IDE
 .idea/
+.vscode/
 *.iml
 *.iws
-.vscode/
-.settings/
+*.ipr
 .classpath
 .project
+.settings/
+*.swp
+*.swo
+*~
+
+# OS
 .DS_Store
-
-# Build
-target/
-build/
-*.jar
-*.class
-
-# Dependencies
-*.m2/
-.m2/
-node_modules/
-
-# Logs
-*.log
-logs/
+Thumbs.db
 
 # Environment
 .env
 .env.local
 .env.*.local
 
-# Security
-*.pem
-*.key
-*.p12
-gcp-key.json
+# Logs
+logs/
+*.log
+log.txt
 
 # Database
 *.db
 *.sqlite
 
-# Coverage
-coverage/
-*.lcov
-
-# OS
-Thumbs.db
-.DS_Store
+# Application
+out/
+dist/
+.mvn/wrapper/maven-wrapper.jar
