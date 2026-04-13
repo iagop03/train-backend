@@ -1,0 +1,113 @@
+steps:
+  # Step 1: Build Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-image'
+    args:
+      - 'build'
+      - '-t'
+      - '${_CONTAINER_REGISTRY}/${PROJECT_ID}/${_CONTAINER_IMAGE_NAME}:${SHORT_SHA}'
+      - '-t'
+      - '${_CONTAINER_REGISTRY}/${PROJECT_ID}/${_CONTAINER_IMAGE_NAME}:latest'
+      - '-f'
+      - 'Dockerfile'
+      - '.'
+    env:
+      - 'DOCKER_BUILDKIT=1'
+    secretEnv:
+      - 'JWT_SECRET'
+      - 'API_KEY'
+
+  # Step 2: Push to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-image'
+    args:
+      - 'push'
+      - '${_CONTAINER_REGISTRY}/${PROJECT_ID}/${_CONTAINER_IMAGE_NAME}:${SHORT_SHA}'
+    waitFor:
+      - 'build-image'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-image-latest'
+    args:
+      - 'push'
+      - '${_CONTAINER_REGISTRY}/${PROJECT_ID}/${_CONTAINER_IMAGE_NAME}:latest'
+    waitFor:
+      - 'build-image'
+
+  # Step 3: Run tests
+  - name: 'gcr.io/cloud-builders/gradle'
+    id: 'run-tests'
+    args:
+      - 'test'
+    env:
+      - 'JAVA_TOOL_OPTIONS=-Xmx2g'
+    waitFor:
+      - 'build-image'
+
+  # Step 4: Build application JAR
+  - name: 'gcr.io/cloud-builders/gradle'
+    id: 'build-jar'
+    args:
+      - 'build'
+      - '-x'
+      - 'test'
+    env:
+      - 'JAVA_TOOL_OPTIONS=-Xmx2g'
+    secretEnv:
+      - 'JWT_SECRET'
+      - 'API_KEY'
+    waitFor:
+      - 'run-tests'
+
+  # Step 5: Deploy to Cloud Run
+  - name: 'gcr.io/cloud-builders/gke-deploy'
+    id: 'deploy-cloud-run'
+    args:
+      - 'run'
+      - '--filename=infrastructure/gcp/cloud-run'
+      - '--image=${_CONTAINER_REGISTRY}/${PROJECT_ID}/${_CONTAINER_IMAGE_NAME}:${SHORT_SHA}'
+      - '--location=${_CLOUD_RUN_REGION}'
+      - '--output=/workspace/gke-deploy'
+    env:
+      - 'CLOUDSDK_COMPUTE_REGION=${_CLOUD_RUN_REGION}'
+      - 'CLOUDSDK_RUN_PLATFORM=managed'
+    waitFor:
+      - 'push-image'
+
+  - name: 'gcr.io/cloud-builders/gke-deploy'
+    id: 'deploy'
+    args:
+      - 'apply'
+      - '--filename=/workspace/gke-deploy/output'
+      - '--namespace=default'
+    env:
+      - 'CLOUDSDK_COMPUTE_REGION=${_CLOUD_RUN_REGION}'
+      - 'CLOUDSDK_RUN_PLATFORM=managed'
+    waitFor:
+      - 'deploy-cloud-run'
+
+availableSecrets:
+  secretManager:
+    - versionName: projects/${PROJECT_ID}/secrets/jwt-secret/versions/latest
+      env: 'JWT_SECRET'
+    - versionName: projects/${PROJECT_ID}/secrets/api-key/versions/latest
+      env: 'API_KEY'
+
+images:
+  - '${_CONTAINER_REGISTRY}/${PROJECT_ID}/${_CONTAINER_IMAGE_NAME}:${SHORT_SHA}'
+  - '${_CONTAINER_REGISTRY}/${PROJECT_ID}/${_CONTAINER_IMAGE_NAME}:latest'
+
+substitutions:
+  _CONTAINER_REGISTRY: 'gcr.io'
+  _CONTAINER_IMAGE_NAME: 'train-backend'
+  _CLOUD_RUN_REGION: 'us-central1'
+  _CLOUD_RUN_SERVICE_NAME: 'train-backend'
+
+options:
+  machineType: 'N1_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
+  substitution_option: 'ALLOW_LOOSE'
+
+timeout: 3600s
+
+logsBucket: 'gs://train-cloud-build-logs'
