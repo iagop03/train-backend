@@ -1,21 +1,34 @@
 package com.train.config;
 
-import lombok.extern.slf4j.Slf4j;
-import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.KeycloakBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@Slf4j
 public class KeycloakConfig {
 
-    /**
-     * Resolve Keycloak configuration from Spring Boot application properties
-     * instead of keycloak.json
-     */
+    @Value("${keycloak.auth-server-url}")
+    private String authServerUrl;
+
+    @Value("${keycloak.realm}")
+    private String realm;
+
+    @Value("${KEYCLOAK_ADMIN_USERNAME}")
+    private String adminUsername;
+
+    @Value("${KEYCLOAK_ADMIN_PASSWORD}")
+    private String adminPassword;
+
     @Bean
-    public KeycloakSpringBootConfigResolver keycloakConfigResolver() {
-        log.info("Configuring Keycloak with Spring Boot configuration resolver");
-        return new KeycloakSpringBootConfigResolver();
+    public Keycloak keycloak() {
+        return KeycloakBuilder.builder()
+                .serverUrl(authServerUrl)
+                .realm(realm)
+                .username(adminUsername)
+                .password(adminPassword)
+                .clientId("admin-cli")
+                .build();
     }
 }
