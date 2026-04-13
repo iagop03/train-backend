@@ -1,13 +1,14 @@
 spring:
   data:
     mongodb:
-      uri: ${MONGODB_URI:mongodb+srv://user:password@cluster.mongodb.net/train?retryWrites=true&w=majority}
-      database: ${MONGODB_DATABASE:train_db}
+      uri: ${MONGODB_URI:mongodb+srv://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_HOST}/train?retryWrites=true&w=majority}
       auto-index-creation: true
-  
-  application:
-    name: TrAIn Backend
-    
+      database: train_db
+
+  mongock:
+    change-logs-scan-package:
+      - com.train.config.migrations
+
 logging:
   level:
     org.springframework.data.mongodb: DEBUG
