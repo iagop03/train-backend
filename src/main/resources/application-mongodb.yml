@@ -1,0 +1,14 @@
+spring:
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb+srv://user:password@cluster.mongodb.net/train?retryWrites=true&w=majority}
+      database: ${MONGODB_DATABASE:train_db}
+      auto-index-creation: true
+  
+  application:
+    name: TrAIn Backend
+    
+logging:
+  level:
+    org.springframework.data.mongodb: DEBUG
+    com.train: INFO
