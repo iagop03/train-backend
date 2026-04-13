@@ -1,0 +1,26 @@
+# Terraform variables for Keycloak deployment
+# TRAIN-16: GCP VM e2-small Configuration
+
+gcp_project_id = "your-gcp-project-id"
+gcp_region     = "us-central1"
+gcp_zone       = "a"
+
+# Keycloak Configuration
+keycloak_admin_user     = "admin"
+keycloak_admin_password = "your-secure-password-here"
+keycloak_domain         = "keycloak.yourdomain.com"
+keycloak_internal_ip    = "10.128.0.2"
+
+# Database Configuration
+db_host     = "cloudsql-private-ip"
+db_port     = 5432
+db_name     = "keycloak"
+db_username = "keycloak_user"
+db_password = "your-secure-db-password"
+
+# Let's Encrypt Configuration
+letsencrypt_email = "admin@yourdomain.com"
+
+# Network Configuration
+allowed_ssh_cidrs       = ["0.0.0.0/0"]  # Restrict this to your IP in production
+dns_managed_zone_name   = "your-dns-zone"
