@@ -1,69 +1,67 @@
 package com.train.config;
 
-import lombok.extern.slf4j.Slf4j;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.context.annotation.Primary;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.sql.DataSource;
 
+/**
+ * DataSource configuration for PostgreSQL Cloud SQL.
+ * Provides connection pooling via HikariCP.
+ */
 @Configuration
-@Slf4j
 public class DataSourceConfig {
 
+    @Value("${spring.datasource.url}")
+    private String url;
+
+    @Value("${spring.datasource.username}")
+    private String username;
+
+    @Value("${spring.datasource.password}")
+    private String password;
+
+    @Value("${spring.datasource.hikari.maximum-pool-size:20}")
+    private int maximumPoolSize;
+
+    @Value("${spring.datasource.hikari.minimum-idle:5}")
+    private int minimumIdle;
+
+    @Value("${spring.datasource.hikari.connection-timeout:30000}")
+    private long connectionTimeout;
+
+    @Value("${spring.datasource.hikari.idle-timeout:600000}")
+    private long idleTimeout;
+
+    @Value("${spring.datasource.hikari.max-lifetime:1800000}")
+    private long maxLifetime;
+
     /**
-     * For staging and production, secrets are resolved automatically by Spring Cloud GCP
-     * For dev, local configuration is used
+     * Create HikariCP datasource bean with optimized configuration.
      */
+    @Bean
+    @Primary
+    public DataSource dataSource() {
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(url);
+        config.setUsername(username);
+        config.setPassword(password);
+        config.setMaximumPoolSize(maximumPoolSize);
+        config.setMinimumIdle(minimumIdle);
+        config.setConnectionTimeout(connectionTimeout);
+        config.setIdleTimeout(idleTimeout);
+        config.setMaxLifetime(maxLifetime);
+        config.setAutoCommit(true);
+        config.setLeakDetectionThreshold(60000);
+        config.setConnectionTestQuery("SELECT 1");
+        config.setPoolName("TraInHikariPool");
 
-    @Configuration
-    @Profile("!prod & !staging")
-    public static class DevDataSourceConfig {
-        @Bean
-        public DataSource devDataSource(
-                org.springframework.boot.autoconfigure.jdbc.DataSourceProperties props) {
-            log.info("Using DEV DataSource configuration");
-            return DataSourceBuilder.create()
-                    .driverClassName(props.getDriverClassName())
-                    .url(props.getUrl())
-                    .username(props.getUsername())
-                    .password(props.getPassword())
-                    .build();
-        }
-    }
-
-    @Configuration
-    @Profile("staging")
-    public static class StagingDataSourceConfig {
-        @Bean
-        public DataSource stagingDataSource(
-                org.springframework.boot.autoconfigure.jdbc.DataSourceProperties props) {
-            log.info("Using STAGING DataSource configuration");
-            return DataSourceBuilder.create()
-                    .driverClassName(props.getDriverClassName())
-                    .url(props.getUrl())
-                    .username(props.getUsername())
-                    .password(props.getPassword())
-                    .build();
-        }
-    }
-
-    @Configuration
-    @Profile("prod")
-    public static class ProductionDataSourceConfig {
-        @Bean
-        public DataSource productionDataSource(
-                org.springframework.boot.autoconfigure.jdbc.DataSourceProperties props) {
-            log.info("Using PRODUCTION DataSource configuration");
-            return DataSourceBuilder.create()
-                    .driverClassName(props.getDriverClassName())
-                    .url(props.getUrl())
-                    .username(props.getUsername())
-                    .password(props.getPassword())
-                    .build();
-        }
+        return new HikariDataSource(config);
     }
 }

@@ -1,64 +1,46 @@
 spring:
-  profiles:
-    active: prod
-  
-  # MongoDB Atlas - Production VPC Peering
-  data:
-    mongodb:
-      uri: ${MONGODB_URI}
-      username: ${MONGODB_USER}
-      password: ${MONGODB_PASSWORD}
-      database: train_db
-      auto-index-creation: false
-      authentication-database: admin
-  
-  mongodb:
-    connection:
-      pool:
-        min-size: 20
-        max-size: 100
-        max-wait-time-ms: 30000
-      timeout-ms: 15000
-      socket-timeout-ms: 45000
-      heartbeat:
-        interval-ms: 10000
-      server-selection-timeout-ms: 30000
-
-  # Cloud SQL - PostgreSQL
   datasource:
-    url: jdbc:postgresql://${SQL_INSTANCE_IP}:5432/train_db_prod?sslmode=require&socketFactoryArg=/cloudsql/${GCP_SQL_INSTANCE}
-    username: ${SQL_USER}
-    password: ${SQL_PASSWORD}
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 30
       minimum-idle: 10
-      idle-timeout: 900000
-      max-lifetime: 1800000
+      connection-timeout: 30000
 
   jpa:
     hibernate:
       ddl-auto: validate
+    show-sql: false
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: false
-        generate_statistics: false
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: false
+    validate-on-migrate: true
+    clean-disabled: true
+    locations: classpath:db/migration
+
+  data:
+    mongodb:
+      uri: ${MONGO_URI}
 
 logging:
   level:
     root: WARN
-    com.iagop.train: INFO
-    com.mongodb: WARN
+    com.train: INFO
+    org.springframework.security: WARN
+    org.flywaydb: INFO
   file:
     name: logs/train-backend.log
     max-size: 50MB
-    max-history: 90
+    max-history: 30
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,prometheus
-  endpoint:
-    health:
-      show-details: when-authorized
+server:
+  port: 8080
+  compression:
+    enabled: true
+    min-response-size: 1024

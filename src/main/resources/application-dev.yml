@@ -1,43 +1,37 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/train_dev
+    url: jdbc:postgresql://localhost:5432/train_db_dev
     username: train_user
-    password: train_pass_dev
+    password: train_password
     driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
         format_sql: true
         use_sql_comments: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: false
+    validate-on-migrate: true
+    clean-disabled: true
+
   data:
     mongodb:
-      uri: mongodb://localhost:27017/train_dev
+      uri: mongodb://admin:password@localhost:27017/train_db_dev?retryWrites=true&w=majority
 
 logging:
   level:
-    root: DEBUG
-    com.train: TRACE
-    org.springframework.web: DEBUG
+    root: INFO
+    com.train: DEBUG
+    org.springframework.security: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-  file:
-    name: logs/dev/train-backend.log
+    org.flywaydb: DEBUG
 
 server:
   port: 8080
-  error:
-    include-stacktrace: always
-    include-message: always
-
-keycloak:
-  ssl-required: none
-
-app:
-  api-base-url: http://localhost:8080
-  cors:
-    allowed-origins: http://localhost:4200,http://localhost:3000
-  jwt:
-    validation: false
