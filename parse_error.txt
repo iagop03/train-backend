@@ -1,1 +1,1 @@
-Parse error: Expected double-quoted property name in JSON at position 29806 (line 55 column 56)
+Parse error: Bad escaped character in JSON at position 23242 (line 41 column 301)
