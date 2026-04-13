@@ -1,23 +1,24 @@
 # TrAIn Backend
 
-Spring Boot 3 backend para TrAIn - AI Gym Tracker.
+Backend para la aplicación TrAIn (AI gym tracker) - Rastreador de ejercicios con IA.
 
-## Stack Tecnológico
+## Tech Stack
 
 - **Java 21**
 - **Spring Boot 3.x**
-- **PostgreSQL Cloud SQL**
-- **MongoDB Atlas**
-- **Keycloak** (Autenticación/Autorización)
-- **Google Cloud Platform**
+- **Spring Security + Keycloak** (Autenticación)
+- **PostgreSQL** (Cloud SQL)
+- **MongoDB Atlas** (Datos no estructurados)
+- **GCP** (Cloud Platform)
+- **Maven** (Build tool)
 
-## Prerequisitos
+## Requisitos previos
 
-- JDK 21+
-- Maven 3.8+
-- PostgreSQL 14+
-- MongoDB 5.0+
-- Keycloak 22+
+- Java 21+
+- Maven 3.9+
+- Docker & Docker Compose
+- PostgreSQL 15+
+- MongoDB 6+
 
 ## Instalación
 
@@ -26,69 +27,64 @@ Spring Boot 3 backend para TrAIn - AI Gym Tracker.
 git clone https://github.com/iagop03/train-backend.git
 cd train-backend
 
-# Configurar variables de entorno
-cp .env.example .env
+# Instalar dependencias
+mvn clean install
 
-# Build
-mvn clean package
+# Ejecutar con Docker Compose
+docker-compose up -d
 
-# Ejecutar
-java -jar target/train-backend.jar
+# Ejecutar aplicación
+mvn spring-boot:run
 ```
 
-## Estructura del Proyecto
+## Estructura del proyecto
 
 ```
 src/
 ├── main/
 │   ├── java/com/train/
-│   │   ├── controller/
+│   │   ├── api/
+│   │   ├── domain/
 │   │   ├── service/
 │   │   ├── repository/
-│   │   ├── entity/
-│   │   ├── dto/
 │   │   ├── config/
 │   │   ├── security/
 │   │   └── exception/
 │   └── resources/
 │       ├── application.yml
-│       └── db/migration/
+│       ├── application-dev.yml
+│       └── application-prod.yml
 └── test/
+    └── java/com/train/
 ```
 
-## API Endpoints
-
-### Authentication
-- `POST /api/v1/auth/login`
-- `POST /api/v1/auth/register`
-- `POST /api/v1/auth/refresh`
-- `POST /api/v1/auth/logout`
-
-### Users
-- `GET /api/v1/users/{id}`
-- `PUT /api/v1/users/{id}`
-- `DELETE /api/v1/users/{id}`
-
-## Testing
+## Scripts disponibles
 
 ```bash
-# Unit tests
-mvn test
+# Tests
+mvn test                    # Ejecutar tests unitarios
+mvn verify                  # Ejecutar tests + análisis
 
-# Integration tests
-mvn test -Pintegration
+# Build
+mvn clean package           # Build del proyecto
+mvn spring-boot:run         # Ejecutar en desarrollo
 
-# Coverage
-mvn jacoco:report
+# Docker
+docker-compose up           # Iniciar infraestructura
+docker-compose down         # Parar infraestructura
 ```
 
-## Contributing
+## Documentación de API
 
-1. Crear feature branch: `git checkout -b feature/TRAIN-XXX`
-2. Commit changes: `git commit -am 'feat: descripción'`
-3. Push a branch: `git push origin feature/TRAIN-XXX`
-4. Abrir Pull Request
+La documentación Swagger está disponible en:
+```
+http://localhost:8080/swagger-ui.html
+```
 
-## License
+## Contribuir
 
-MIT License
+Ver [CONTRIBUTING.md](CONTRIBUTING.md)
+
+## Licencia
+
+MIT
