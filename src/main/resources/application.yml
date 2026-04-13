@@ -1,48 +1,45 @@
 spring:
   application:
     name: train-backend
-  profiles:
-    active: dev
-  datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:train_db}
-    username: ${DB_USER:postgres}
-    password: ${DB_PASSWORD:postgres}
-    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+        jdbc:
+          batch_size: 20
+          fetch_size: 50
+        order_inserts: true
+        order_updates: true
+    show-sql: false
+    open-in-view: false
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:train_db}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:password}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    sql-migration-prefix: V
+    sql-migration-separator: __
+    sql-migration-suffixes: .sql
   data:
     mongodb:
-      uri: ${MONGODB_URI:mongodb+srv://user:password@localhost/train_db}
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/train}
-          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:8080/realms/train/protocol/openid-connect/certs}
-
-keycloak:
-  realm: ${KEYCLOAK_REALM:train}
-  auth-server-url: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}
-  resource: ${KEYCLOAK_CLIENT_ID:train-backend}
-  credentials:
-    secret: ${KEYCLOAK_CLIENT_SECRET}
-  ssl-required: external
-  public-client: false
-  use-resource-role-mappings: true
-
-server:
-  port: ${SERVER_PORT:8081}
-  servlet:
-    context-path: /api
+      uri: ${MONGODB_URI:mongodb+srv://localhost:27017/train_db}
+      auto-index-creation: true
 
 logging:
   level:
     root: INFO
-    com.train: DEBUG
-    org.springframework.security: DEBUG
+    com.example: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
