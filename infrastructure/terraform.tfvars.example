@@ -1,0 +1,10 @@
+# MongoDB Atlas Configuration
+mongoodb_atlas_org_id = "YOUR_ORGANIZATION_ID"
+mongoodb_atlas_api_key = "YOUR_API_KEY"
+
+# GCP Configuration
+gcp_project_id = "train-project-id"
+gcp_region     = "us-central1"
+
+# MongoDB Atlas Configuration
+atlas_region = "US_CENTRAL_1"

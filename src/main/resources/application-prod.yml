@@ -1,35 +1,64 @@
 spring:
-  datasource:
-    url: jdbc:postgresql://${CLOUDSQL_HOST:cloudsql-proxy}:${CLOUDSQL_PORT:5432}/${CLOUDSQL_DATABASE:train}?sslmode=require&applicationName=train-backend
-    username: ${CLOUDSQL_USER:train_app}
-    password: ${CLOUDSQL_PASSWORD}
-    hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
-      auto-commit: true
-      jdbc-url: jdbc:postgresql://${CLOUDSQL_HOST:cloudsql-proxy}:${CLOUDSQL_PORT:5432}/${CLOUDSQL_DATABASE:train}?sslmode=require&applicationName=train-backend
+  profiles:
+    active: prod
   
+  # MongoDB Atlas - Production VPC Peering
+  data:
+    mongodb:
+      uri: ${MONGODB_URI}
+      username: ${MONGODB_USER}
+      password: ${MONGODB_PASSWORD}
+      database: train_db
+      auto-index-creation: false
+      authentication-database: admin
+  
+  mongodb:
+    connection:
+      pool:
+        min-size: 20
+        max-size: 100
+        max-wait-time-ms: 30000
+      timeout-ms: 15000
+      socket-timeout-ms: 45000
+      heartbeat:
+        interval-ms: 10000
+      server-selection-timeout-ms: 30000
+
+  # Cloud SQL - PostgreSQL
+  datasource:
+    url: jdbc:postgresql://${SQL_INSTANCE_IP}:5432/train_db_prod?sslmode=require&socketFactoryArg=/cloudsql/${GCP_SQL_INSTANCE}
+    username: ${SQL_USER}
+    password: ${SQL_PASSWORD}
+    hikari:
+      maximum-pool-size: 30
+      minimum-idle: 10
+      idle-timeout: 900000
+      max-lifetime: 1800000
+
   jpa:
     hibernate:
       ddl-auto: validate
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQL15Dialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: false
-        jdbc:
-          batch_size: 20
-          fetch_size: 50
-          use_scrollable_resultset: false
-        order_inserts: true
-        order_updates: true
         generate_statistics: false
-        connection:
-          provider_disables_autocommit: true
 
 logging:
   level:
-    org.hibernate.SQL: INFO
-    org.hibernate.type.descriptor.sql: WARN
+    root: WARN
+    com.iagop.train: INFO
+    com.mongodb: WARN
+  file:
+    name: logs/train-backend.log
+    max-size: 50MB
+    max-history: 90
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized

@@ -2,42 +2,110 @@ spring:
   application:
     name: train-backend
   profiles:
-    active: ${SPRING_PROFILES_ACTIVE:dev}
+    active: dev
+  
+  # MongoDB Atlas Configuration - VPC Peering
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb+srv://train_app_user:password@train-m0-cluster.mongodb.net/train_db?retryWrites=true&w=majority}
+      username: ${MONGODB_USER:train_app_user}
+      password: ${MONGODB_PASSWORD:password}
+      database: train_db
+      auto-index-creation: true
+      authentication-database: admin
+  
+  # MongoDB Connection Pool Settings for M0 Cluster
+  mongodb:
+    connection:
+      pool:
+        min-size: 10
+        max-size: 50
+        max-wait-time-ms: 30000
+      timeout-ms: 10000
+      socket-timeout-ms: 30000
+      heartbeat:
+        interval-ms: 10000
+      server-selection-timeout-ms: 30000
+
+  # PostgreSQL Cloud SQL Configuration
+  datasource:
+    url: jdbc:postgresql://${SQL_INSTANCE_IP:localhost}:5432/train_db?sslmode=require&socketFactoryArg=/cloudsql/${GCP_SQL_INSTANCE}
+    username: ${SQL_USER:postgres}
+    password: ${SQL_PASSWORD:password}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+        use_sql_comments: true
+    show-sql: false
 
-  data:
+  # Security - Keycloak
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/train}
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:8080/realms/train/protocol/openid-connect/certs}
+
+  # Actuator Endpoints
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health,info,prometheus,metrics
+    endpoint:
+      health:
+        show-details: when-authorized
+    health:
+      livenessState:
+        enabled: true
+      readinessState:
+        enabled: true
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  health:
     mongodb:
-      uri: ${MONGODB_URI:mongodb+srv://user:pass@mongodb.mongodb.net/train?retryWrites=true&w=majority}
-
-  cloud:
-    gcp:
-      secret-manager:
-        project-id: ${GCP_PROJECT_ID:train-ai-gym}
-      project-id: ${GCP_PROJECT_ID:train-ai-gym}
-
-keycloak:
-  realm: ${KEYCLOAK_REALM:train}
-  auth-server-url: ${KEYCLOAK_SERVER_URL:http://localhost:8080}
-  ssl-required: ${KEYCLOAK_SSL_REQUIRED:external}
-  resource: ${KEYCLOAK_CLIENT_ID:train-backend}
-  credentials:
-    secret: ${KEYCLOAK_CLIENT_SECRET:secret}
+      enabled: true
+    diskspace:
+      enabled: true
 
 logging:
   level:
     root: INFO
-    com.train: DEBUG
+    com.iagop.train: DEBUG
+    com.mongodb: WARN
+    org.springframework.data.mongodb: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/train-backend.log
+    max-size: 10MB
+    max-history: 30
 
+# Application Configuration
 app:
-  environment: ${ENVIRONMENT:dev}
-  version: @project.version@
+  name: TrAIn - AI Gym Tracker
+  version: 1.0.0
+  api-version: v1
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:3000,http://localhost:4200}
+    allowed-methods: GET,POST,PUT,DELETE,OPTIONS,PATCH
+    allowed-headers: "*"
+    allow-credentials: true
