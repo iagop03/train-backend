@@ -3,48 +3,42 @@
 .vscode/
 *.swp
 *.swo
-*.swn
+*~
 .DS_Store
 
-# Maven
+# Build
 target/
+build/
+*.class
 *.jar
 *.war
-*.rar
-*.ear
 
-# Build
+# Maven
+.mvn/
+mvnw
+mvnw.cmd
+
+# Gradle
 .gradle/
-build/
+gradle/
+
+# Spring Boot
+*.log
+spring-shell.log
 
 # Environment
 .env
 .env.local
-*.properties.local
+.env.*.local
 
-# Logs
-*.log
-logs/
+# Dependencies
+node_modules/
+venv/
 
-# Test coverage
-*.jacoco
+# Testing
 .coverage
 coverage/
-
-# Node (for frontend integration)
-node_modules/
-npm-debug.log
-yarn-error.log
-
-# Docker
-.dockerignore
 
 # OS
 Thumbs.db
 .DS_Store
-
-# IDE settings
-*.iml
-*.classpath
-*.project
-.settings/

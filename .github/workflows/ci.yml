@@ -1,21 +1,22 @@
-name: CI Pipeline - Backend
+name: CI/CD - Backend
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ develop, main ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ develop, main ]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
+    
     services:
       postgres:
-        image: postgres:15
+        image: postgres:16
         env:
           POSTGRES_DB: train_test
-          POSTGRES_USER: test
-          POSTGRES_PASSWORD: test
+          POSTGRES_USER: train_user
+          POSTGRES_PASSWORD: test_password
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -28,7 +29,7 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Set up JDK 21
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         java-version: '21'
         distribution: 'temurin'
@@ -41,19 +42,26 @@ jobs:
       run: mvn test
       env:
         SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/train_test
-        SPRING_DATASOURCE_USERNAME: test
-        SPRING_DATASOURCE_PASSWORD: test
+        SPRING_DATASOURCE_USERNAME: train_user
+        SPRING_DATASOURCE_PASSWORD: test_password
     
     - name: SonarQube Analysis
       run: mvn sonar:sonar -Dsonar.projectKey=train-backend
       env:
         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         SONAR_LOGIN: ${{ secrets.SONAR_TOKEN }}
-      if: github.event_name == 'push'
     
-    - name: Upload coverage to Codecov
+    - name: Upload coverage
       uses: codecov/codecov-action@v3
       with:
         files: ./target/site/jacoco/jacoco.xml
-        flags: unittests
-        name: codecov-umbrella
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run Snyk Security Scan
+      uses: snyk/actions/maven@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}

@@ -1,17 +1,15 @@
-# TrAIn Backend Code Owners
+# Code Owners for TrAIn Backend
 
-# Default owners for backend repository
-* @iagop03
+# Backend team
+@iagop03
 
-# Configuration and deployment
-/.github/ @iagop03
-/pom.xml @iagop03
-Dockerfile @iagop03
-
-# Security and authentication
-/src/main/java/com/train/security/ @iagop03
+# Core modules
+/src/main/java/com/train/core/ @iagop03
 /src/main/java/com/train/auth/ @iagop03
+/src/main/java/com/train/api/ @iagop03
 
-# Database and persistence
-/src/main/java/com/train/persistence/ @iagop03
+# Database
 /src/main/resources/db/migration/ @iagop03
+
+# Configuration
+/src/main/resources/application*.yml @iagop03

@@ -1,85 +1,128 @@
 # Guía de Contribución - TrAIn Backend
 
-## Comenzar
+## Inicio rápido
 
-1. Fork el repositorio
-2. Clona tu fork: `git clone https://github.com/tu-usuario/train-backend.git`
-3. Añade el repositorio upstream: `git remote add upstream https://github.com/iagop03/train-backend.git`
-4. Crea una rama para tu feature: `git checkout -b feature/TRAIN-XXX-descripcion`
-
-## Requisitos
-
-- Java 21+
+### Requisitos
+- JDK 21+
 - Maven 3.8+
-- PostgreSQL 15+
-- Docker (opcional, recomendado)
+- PostgreSQL 16
+- Docker & Docker Compose (opcional)
 
-## Configuración Local
+### Setup local
 
 ```bash
-# Instalar dependencias
+# Clonar repo
+git clone https://github.com/iagop03/train-backend.git
+cd train-backend
+
+# Setup base de datos (Docker)
+docker-compose up -d postgres
+
+# Build
 mvn clean install
 
-# Ejecutar tests
-mvn test
-
-# Ejecutar la aplicación
+# Run
 mvn spring-boot:run
 ```
 
-## Estándares de Código
+## Workflow de desarrollo
 
-- Sigue el Google Java Style Guide
-- Usa nombres descriptivos en inglés
-- Comenta código complejo
-- Escribe tests para nuevas funcionalidades
-- Mantén cobertura de código > 80%
+1. **Crear rama**: `git checkout -b feature/TRAIN-XXX-descripcion`
+2. **Hacer cambios**: Seguir estilo de código (Google Java Style Guide)
+3. **Tests**: Asegurar cobertura >80%
+4. **Commit**: `git commit -m "TRAIN-XXX: descripción"`
+5. **Push**: `git push origin feature/TRAIN-XXX-descripcion`
+6. **PR**: Crear Pull Request con template
 
-## Convenciones de Commits
+## Convenciones de código
+
+### Naming
+- Clases: PascalCase
+- Métodos/variables: camelCase
+- Constantes: UPPER_SNAKE_CASE
+
+### Estructura
+- Controllers: `@RestController`, `@RequestMapping`
+- Services: `@Service`, lógica de negocio
+- Repositories: `@Repository`, Spring Data JPA
+- DTOs: Separar en carpeta `dto`
+
+### Ejemplo
+
+```java
+@RestController
+@RequestMapping("/api/v1/workouts")
+public class WorkoutController {
+    private final WorkoutService workoutService;
+    
+    public WorkoutController(WorkoutService workoutService) {
+        this.workoutService = workoutService;
+    }
+    
+    @GetMapping
+    public ResponseEntity<List<WorkoutDTO>> getWorkouts() {
+        return ResponseEntity.ok(workoutService.findAll());
+    }
+}
+```
+
+## Testing
+
+```bash
+# Run all tests
+mvn test
+
+# Coverage report
+mvn jacoco:report
+open target/site/jacoco/index.html
+```
+
+## Branch Protection Rules
+
+**main** & **develop**:
+- ✅ Require PR reviews (2 approvals)
+- ✅ Require status checks (CI/CD, SonarQube, tests)
+- ✅ Require branches up to date
+- ✅ Dismiss stale reviews
+- ✅ Require signed commits
+- ❌ Allow force pushes
+- ❌ Allow deletions
+
+## Commit Messages
 
 ```
-[TRAIN-XXX] Tipo: Descripción breve
+TRAIN-XXX: Brief description
 
-Descripción detallada si es necesario.
-
-Tipos permitidos:
-- feat: Nueva funcionalidad
-- fix: Corrección de bug
-- refactor: Refactorización de código
-- test: Añadir o actualizar tests
-- docs: Cambios en documentación
-- style: Cambios de formato
-- chore: Cambios en dependencias o configuración
+Optional detailed explanation:
+- What was changed
+- Why it was changed
+- Any relevant context
 ```
 
-## Pull Request Process
+## Issues & PRs
 
-1. Asegúrate de que tu rama está actualizada: `git pull upstream develop`
-2. Ejecuta tests localmente: `mvn test`
-3. Push a tu fork y crea un PR contra `develop`
-4. Llena el PR template completamente
-5. Espera a que los CI checks pasen
-6. Solicita revisión de al menos 1 maintainer
-7. Responde a comentarios de revisión
-8. Merge solo después de aprobación
+- Linkar siempre al issue: `Fix #XXX`
+- Usar labels: `bug`, `feature`, `documentation`, `help wanted`
+- Asignar milestone para versión target
 
-## Reportar Bugs
+## Code Review
 
-Abre un issue con:
-- Descripción clara del bug
-- Pasos para reproducir
-- Comportamiento esperado vs actual
-- Stack trace si aplica
-- Versión Java y SO
+Al revisar PRs:
+1. Verificar funcionalidad
+2. Revisar tests
+3. Validar convenciones
+4. Sugerir mejoras
+5. Aprobar o solicitar cambios
 
-## Sugerir Mejoras
+## Release
 
-Abre un issue con:
-- Descripción clara de la mejora
-- Caso de uso
-- Beneficios
-- Posibles alternativas
+```bash
+mvn release:prepare
+mvn release:perform
+```
 
-## Preguntas
+## Soporte
 
-Para preguntas, abre una discussion o contacta a @iagop03
+- Documentación: `/docs`
+- Issues: GitHub Issues
+- Discussions: GitHub Discussions
