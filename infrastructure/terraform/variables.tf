@@ -1,23 +1,24 @@
 variable "gcp_project_id" {
-  description = "GCP Project ID"
   type        = string
-  sensitive   = true
+  description = "GCP Project ID"
 }
 
 variable "gcp_region" {
-  description = "GCP Region"
   type        = string
+  description = "GCP Region"
   default     = "us-central1"
 }
 
-variable "office_ip_cidr" {
-  description = "Office IP CIDR for authorized networks"
-  type        = string
-  sensitive   = true
-}
-
-variable "environment" {
-  description = "Environment name"
-  type        = string
-  default     = "production"
+variable "authorized_networks" {
+  type = list(object({
+    name = string
+    cidr = string
+  }))
+  description = "List of authorized networks for Cloud SQL (dev/staging only)"
+  default = [
+    {
+      name = "office"
+      cidr = "203.0.113.0/24" # Replace with actual office IP
+    }
+  ]
 }

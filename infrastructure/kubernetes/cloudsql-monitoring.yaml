@@ -1,0 +1,137 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudsql-alerts
+  namespace: monitoring
+data:
+  cloudsql-alerts.yaml: |
+    groups:
+    - name: cloudsql
+      interval: 30s
+      rules:
+      # High CPU Usage
+      - alert: CloudSQLHighCPU
+        expr: |
+          cloudsql_database_cpu_utilization > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Cloud SQL CPU usage is high"
+          description: "Instance {{ $labels.instance }} CPU usage is {{ $value | humanizePercentage }}"
+      
+      # Storage Usage
+      - alert: CloudSQLHighStorageUsage
+        expr: |
+          (cloudsql_database_disk_size - cloudsql_database_disk_free) / cloudsql_database_disk_size > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Cloud SQL storage usage is high"
+          description: "Instance {{ $labels.instance }} storage usage is {{ $value | humanizePercentage }}"
+      
+      # Memory Usage
+      - alert: CloudSQLHighMemoryUsage
+        expr: |
+          cloudsql_database_memory_utilization > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Cloud SQL memory usage is high"
+          description: "Instance {{ $labels.instance }} memory usage is {{ $value | humanizePercentage }}"
+      
+      # Connection Pool
+      - alert: CloudSQLHighConnections
+        expr: |
+          cloudsql_database_mysql_connections / cloudsql_database_mysql_max_connections > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Cloud SQL connection pool usage is high"
+          description: "Instance {{ $labels.instance }} connection usage is {{ $value | humanizePercentage }}"
+      
+      # Replication Lag
+      - alert: CloudSQLReplicationLag
+        expr: |
+          cloudsql_replication_replica_lag > 10
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Cloud SQL replication lag is high"
+          description: "Instance {{ $labels.instance }} replication lag is {{ $value }} seconds"
+      
+      # Backup Failure
+      - alert: CloudSQLBackupFailure
+        expr: |
+          cloudsql_backup_latest_status != 0
+        for: 1h
+        labels:
+          severity: critical
+        annotations:
+          summary: "Cloud SQL backup failed"
+          description: "Latest backup for instance {{ $labels.instance }} failed"
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cloudsql
+  namespace: train
+  labels:
+    app: train
+spec:
+  selector:
+    matchLabels:
+      app: cloudsql-proxy
+  endpoints:
+  - port: health
+    interval: 30s
+    path: /metrics
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudsql-dashboards
+  namespace: monitoring
+data:
+  cloudsql-dashboard.json: |
+    {
+      "dashboard": {
+        "title": "Cloud SQL Performance",
+        "panels": [
+          {
+            "title": "CPU Utilization",
+            "targets": [
+              {"expr": "cloudsql_database_cpu_utilization"}
+            ]
+          },
+          {
+            "title": "Memory Utilization",
+            "targets": [
+              {"expr": "cloudsql_database_memory_utilization"}
+            ]
+          },
+          {
+            "title": "Disk Utilization",
+            "targets": [
+              {"expr": "(cloudsql_database_disk_size - cloudsql_database_disk_free) / cloudsql_database_disk_size"}
+            ]
+          },
+          {
+            "title": "Active Connections",
+            "targets": [
+              {"expr": "cloudsql_database_mysql_connections"}
+            ]
+          },
+          {
+            "title": "Query Performance",
+            "targets": [
+              {"expr": "rate(cloudsql_database_queries_total[5m])"}
+            ]
+          }
+        ]
+      }
+    }

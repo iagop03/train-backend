@@ -1,0 +1,138 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cloudsql-proxy
+  namespace: train
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: cloudsql-proxy
+  namespace: train
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  resourceNames: ["cloudsql-credentials", "cloudsql-ssl-certs"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: cloudsql-proxy
+  namespace: train
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: cloudsql-proxy
+subjects:
+- kind: ServiceAccount
+  name: cloudsql-proxy
+  namespace: train
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudsql-proxy
+  namespace: train
+  labels:
+    app: cloudsql-proxy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cloudsql-proxy
+  template:
+    metadata:
+      labels:
+        app: cloudsql-proxy
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8090"
+    spec:
+      serviceAccountName: cloudsql-proxy
+      containers:
+      - name: cloud-sql-proxy
+        image: gcr.io/cloudsql-docker/cloud-sql-proxy:2.3.0
+        imagePullPolicy: IfNotPresent
+        args:
+          - "--instances=PROJECT_ID:us-central1:train-postgres-prod=tcp:0.0.0.0:5432"
+          - "--port=8090" # Health check port
+          - "--max-connections=100"
+          - "--credentials-file=/var/secrets/cloud.google.com/service_account_key.json"
+          - "--use-http-health-check"
+          - "--structured-logs"
+        ports:
+        - name: postgres
+          containerPort: 5432
+          protocol: TCP
+        - name: health
+          containerPort: 8090
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /liveness
+            port: health
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /readiness
+            port: health
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 3
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 2
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: google-cloud-key
+          mountPath: /var/secrets/cloud.google.com
+          readOnly: true
+      volumes:
+      - name: google-cloud-key
+        secret:
+          secretName: cloudsql-proxy-key
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - cloudsql-proxy
+              topologyKey: kubernetes.io/hostname
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudsql-proxy
+  namespace: train
+  labels:
+    app: cloudsql-proxy
+spec:
+  type: ClusterIP
+  ports:
+  - port: 5432
+    targetPort: postgres
+    protocol: TCP
+    name: postgres
+  selector:
+    app: cloudsql-proxy

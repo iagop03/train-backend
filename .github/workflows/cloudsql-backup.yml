@@ -1,0 +1,76 @@
+name: Cloud SQL Daily Backup
+
+on:
+  schedule:
+    - cron: '0 3 * * *'  # 03:00 UTC daily
+  workflow_dispatch:
+
+env:
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  CLOUDSQL_INSTANCE: train-postgres-prod
+  GCP_REGION: us-central1
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+        service_account: ${{ secrets.SERVICE_ACCOUNT }}
+    
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+    
+    - name: Create backup
+      run: |
+        BACKUP_ID="backup-$(date +%Y%m%d-%H%M%S)"
+        echo "Creating backup: $BACKUP_ID"
+        
+        gcloud sql backups create "$BACKUP_ID" \
+          --instance=$CLOUDSQL_INSTANCE \
+          --project=$GCP_PROJECT_ID \
+          --region=$GCP_REGION
+        
+        echo "Backup initiated: $BACKUP_ID"
+    
+    - name: Export to Cloud Storage (Weekly)
+      if: github.event.schedule == '0 3 * * 0'  # Only on Sundays
+      run: |
+        EXPORT_FILE="train-backup-$(date +%Y%m%d).sql"
+        
+        gcloud sql export sql $CLOUDSQL_INSTANCE \
+          gs://train-backups/$EXPORT_FILE \
+          --database=train \
+          --project=$GCP_PROJECT_ID
+        
+        echo "Database exported to gs://train-backups/$EXPORT_FILE"
+    
+    - name: List recent backups
+      run: |
+        gcloud sql backups list \
+          --instance=$CLOUDSQL_INSTANCE \
+          --project=$GCP_PROJECT_ID \
+          --limit=10 \
+          --format='table(name,windowStartTime,status)'
+    
+    - name: Send notification
+      if: always()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        text: |
+          Cloud SQL Backup: ${{ job.status }}
+          Instance: $CLOUDSQL_INSTANCE
+          Backup ID: ${{ env.BACKUP_ID }}
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        fields: repo,message,commit

@@ -1,0 +1,35 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${CLOUDSQL_HOST:cloudsql-proxy}:${CLOUDSQL_PORT:5432}/${CLOUDSQL_DATABASE:train}?sslmode=require&applicationName=train-backend
+    username: ${CLOUDSQL_USER:train_app}
+    password: ${CLOUDSQL_PASSWORD}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      auto-commit: true
+      jdbc-url: jdbc:postgresql://${CLOUDSQL_HOST:cloudsql-proxy}:${CLOUDSQL_PORT:5432}/${CLOUDSQL_DATABASE:train}?sslmode=require&applicationName=train-backend
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL15Dialect
+        format_sql: false
+        jdbc:
+          batch_size: 20
+          fetch_size: 50
+          use_scrollable_resultset: false
+        order_inserts: true
+        order_updates: true
+        generate_statistics: false
+        connection:
+          provider_disables_autocommit: true
+
+logging:
+  level:
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql: WARN

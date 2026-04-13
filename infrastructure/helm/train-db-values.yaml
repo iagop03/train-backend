@@ -1,0 +1,53 @@
+# Helm values para Cloud SQL configuration
+
+cloudSQL:
+  enabled: true
+  
+  instance:
+    name: train-postgres-prod
+    region: us-central1
+    connectionName: "${GCP_PROJECT_ID}:us-central1:train-postgres-prod"
+  
+  database:
+    name: train
+    host: cloudsql-proxy
+    port: 5432
+  
+  credentials:
+    username: train_app
+    passwordSecret:
+      name: cloudsql-credentials
+      key: password
+  
+  ssl:
+    enabled: true
+    mode: require
+    certificatesSecret:
+      name: cloudsql-ssl-certs
+  
+  connectionPool:
+    maxSize: 20
+    minIdle: 5
+    maxWait: 30
+  
+  backup:
+    enabled: true
+    schedule: "0 3 * * *"
+    retention: 30
+  
+  monitoring:
+    enabled: true
+    prometheus:
+      enabled: true
+      port: 8090
+  
+  proxy:
+    replicas: 2
+    image: gcr.io/cloudsql-docker/cloud-sql-proxy:2.3.0
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "500m"
