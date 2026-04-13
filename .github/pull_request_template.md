@@ -1,27 +1,26 @@
 ## Descripción
-Por favor incluir un resumen de los cambios realizados.
+Describe los cambios realizados en este PR.
 
-## Tipo de cambio
+## Tipo de Cambio
 - [ ] Bug fix (cambio que soluciona un problema)
 - [ ] Nueva feature (cambio que añade funcionalidad)
-- [ ] Breaking change (cambio que causa incompatibilidad)
+- [ ] Breaking change (cambio que afecta funcionalidad existente)
 - [ ] Documentación
 
-## Testing realizado
-Describe los tests realizados para validar los cambios:
-- [ ] Unit tests
-- [ ] Integration tests
-- [ ] Manual testing
-
 ## Checklist
-- [ ] Mi código sigue las convenciones de estilo del proyecto
-- [ ] He realizado auto-review de mi código
-- [ ] He añadido comentarios en código complejo
-- [ ] He actualizado la documentación
-- [ ] Mis cambios no generan nuevas warnings
-- [ ] He añadido tests que prueban mi fix o feature
-- [ ] Tests unitarios nuevos y existentes pasan localmente
+- [ ] Mi código sigue las guías de estilo del proyecto
+- [ ] He realizado una auto-revisión de mi propio código
+- [ ] He comentado mi código, especialmente en partes complejas
+- [ ] He actualizado la documentación correspondiente
+- [ ] Mis cambios no generan nuevas advertencias
+- [ ] He añadido tests que prueban que el fix/feature funciona
+- [ ] Los tests nuevos y existentes pasan localmente
+- [ ] Las migraciones de BD (si aplica) están versionadas
 
 ## Screenshots (si aplica)
 
-## Notas adicionales
+## Testing
+Describe cómo se ha testeado este cambio:
+
+## Issues Relacionados
+Fixes #(issue number)

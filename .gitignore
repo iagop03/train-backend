@@ -1,53 +1,45 @@
-# Java
-*.class
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
-.classpath
-.project
-.settings/
-bin/
-build/
-target/
-
 # IDE
 .idea/
-*.swp
-*.swo
-*~
-.DS_Store
+*.iml
+*.iws
 .vscode/
-*.log
+.settings/
+.classpath
+.project
+.DS_Store
 
-# Maven
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-pom.xml.next
-release.properties
-dependency-reduced-pom.xml
-.m2/
-
-# Gradle
-.gradle/
+# Build
+target/
 build/
+*.jar
+*.class
+
+# Dependencies
+*.m2/
+.m2/
+node_modules/
+
+# Logs
+*.log
+logs/
 
 # Environment
 .env
 .env.local
 .env.*.local
 
-# Spring Boot
-*.jks
+# Security
+*.pem
+*.key
 *.p12
+gcp-key.json
 
-# Test
+# Database
+*.db
+*.sqlite
+
+# Coverage
 coverage/
-.coverage
 *.lcov
 
 # OS
