@@ -1,80 +1,71 @@
 package com.train.controller;
 
-import com.train.dto.LoginResponse;
-import com.train.service.KeycloakIdentityProviderService;
+import com.train.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
-crossorigin(origins = "${CORS_ORIGINS:http://localhost:4200,http://localhost}")
 public class AuthController {
 
-    private final KeycloakIdentityProviderService identityProviderService;
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, String>> login() {
+        return ResponseEntity.ok(Map.of(
+                "message", "Redirecting to Keycloak login",
+                "loginUrl", "/oauth2/authorization/keycloak"
+        ));
+    }
 
-    /**
-     * Obtiene información del usuario autenticado
-     */
+    @PostMapping("/logout")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Map<String, String>> logout() {
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.ok(Map.of(
+                "message", "User logged out successfully"
+        ));
+    }
+
     @GetMapping("/me")
-    public ResponseEntity<LoginResponse> getCurrentUser(@AuthenticationPrincipal Jwt jwt) {
-        LoginResponse response = LoginResponse.builder()
-                .userId(jwt.getClaimAsString("sub"))
-                .email(jwt.getClaimAsString("email"))
-                .name(jwt.getClaimAsString("name"))
-                .givenName(jwt.getClaimAsString("given_name"))
-                .familyName(jwt.getClaimAsString("family_name"))
-                .picture(jwt.getClaimAsString("picture"))
-                .token(jwt.getTokenValue())
-                .build();
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Map<String, Object>> getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("username", auth.getName());
+        response.put("authorities", auth.getAuthorities().stream()
+                .map(a -> a.getAuthority())
+                .collect(Collectors.toList()));
+        response.put("authenticated", auth.isAuthenticated());
+        response.put("timestamp", LocalDateTime.now());
+        
+        SecurityUtils.getCurrentUserId().ifPresent(id -> response.put("userId", id));
+        SecurityUtils.getCurrentUserEmail().ifPresent(email -> response.put("email", email));
+        
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Endpoint para iniciar sesión con Google
-     * Redirige a Keycloak
-     */
-    @GetMapping("/login/google")
-    public ResponseEntity<String> loginWithGoogle() {
-        String redirectUrl = buildKeycloakRedirectUrl("google");
-        return ResponseEntity.ok(redirectUrl);
-    }
-
-    /**
-     * Endpoint para iniciar sesión con Apple
-     * Redirige a Keycloak
-     */
-    @GetMapping("/login/apple")
-    public ResponseEntity<String> loginWithApple() {
-        String redirectUrl = buildKeycloakRedirectUrl("apple");
-        return ResponseEntity.ok(redirectUrl);
-    }
-
-    /**
-     * Construye la URL de redirección a Keycloak
-     */
-    private String buildKeycloakRedirectUrl(String idpAlias) {
-        return String.format("%s/protocol/openid-connect/auth?client_id=%s&response_type=code&scope=openid%%20profile%%20email&redirect_uri=%s&kc_idp_hint=%s",
-                System.getenv("KEYCLOAK_AUTH_SERVER_URL"),
-                System.getenv("KEYCLOAK_CLIENT_ID"),
-                System.getenv("KEYCLOAK_REDIRECT_URI"),
-                idpAlias);
-    }
-
-    /**
-     * Callback de autenticación (manejado por Keycloak)
-     */
-    @PostMapping("/callback")
-    public ResponseEntity<LoginResponse> handleAuthCallback(
-            @RequestParam String code,
-            @RequestParam String state) {
-        log.info("Auth callback recibido - code: {}, state: {}", code, state);
-        // El intercambio de código por token se maneja en el cliente
-        return ResponseEntity.ok(LoginResponse.builder().build());
+    @PostMapping("/refresh")
+    public ResponseEntity<Map<String, String>> refreshToken() {
+        return ResponseEntity.status(HttpStatus.ACCEPTED)
+                .body(Map.of(
+                        "message", "Token refresh endpoint",
+                        "note", "Token refresh is handled by Keycloak OAuth2 flow"
+                ));
     }
 }

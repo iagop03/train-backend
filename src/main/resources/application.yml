@@ -1,6 +1,24 @@
 spring:
   application:
-    name: train-api
+    name: train-backend
+  profiles:
+    active: dev
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:train_db}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb+srv://user:password@localhost/train_db}
   security:
     oauth2:
       resourceserver:
@@ -9,23 +27,22 @@ spring:
           jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:8080/realms/train/protocol/openid-connect/certs}
 
 keycloak:
-  realm: train
+  realm: ${KEYCLOAK_REALM:train}
   auth-server-url: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}
-  resource: train-api
+  resource: ${KEYCLOAK_CLIENT_ID:train-backend}
   credentials:
     secret: ${KEYCLOAK_CLIENT_SECRET}
   ssl-required: external
+  public-client: false
   use-resource-role-mappings: true
 
-oauth2:
-  providers:
-    google:
-      client-id: ${GOOGLE_CLIENT_ID}
-      client-secret: ${GOOGLE_CLIENT_SECRET}
-      redirect-uri: ${KEYCLOAK_REDIRECT_URI:http://localhost:8080}/auth/realms/train/broker/google/endpoint
-    apple:
-      client-id: ${APPLE_CLIENT_ID}
-      team-id: ${APPLE_TEAM_ID}
-      key-id: ${APPLE_KEY_ID}
-      private-key: ${APPLE_PRIVATE_KEY}
-      redirect-uri: ${KEYCLOAK_REDIRECT_URI:http://localhost:8080}/auth/realms/train/broker/apple/endpoint
+server:
+  port: ${SERVER_PORT:8081}
+  servlet:
+    context-path: /api
+
+logging:
+  level:
+    root: INFO
+    com.train: DEBUG
+    org.springframework.security: DEBUG
