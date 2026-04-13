@@ -1,0 +1,25 @@
+# Code owners for the TrAIn Backend project
+
+# Default owner(s) for repository
+* @iagop03
+
+# Java/Spring Boot source code
+/src/main/java/ @iagop03
+
+# Tests
+/src/test/ @iagop03
+
+# Configuration
+/src/main/resources/ @iagop03
+*.yml @iagop03
+*.yaml @iagop03
+pom.xml @iagop03
+
+# Docker & Infrastructure
+Dockerfile @iagop03
+docker-compose.yml @iagop03
+/.github/workflows/ @iagop03
+
+# Documentation
+*.md @iagop03
+/docs/ @iagop03

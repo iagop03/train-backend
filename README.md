@@ -1,125 +1,90 @@
-# TrAIn Backend
+# TrAIn - AI Gym Tracker Backend
 
-Backend para la aplicación TrAIn (AI Gym Tracker) construido con Spring Boot 3 y Java 21.
+## Descripción
+Backend para la aplicación TrAIn (AI Gym Tracker), desarrollado con Spring Boot 3 y Java 21. Proporciona APIs REST para gestionar entrenamientos, ejercicios, usuarios y análisis de IA.
 
 ## Stack Tecnológico
-
 - **Java 21**
-- **Spring Boot 3**
-- **PostgreSQL Cloud SQL**
+- **Spring Boot 3.x**
+- **PostgreSQL** (Cloud SQL)
 - **MongoDB Atlas**
 - **Keycloak** (Autenticación)
-- **GCP** (Cloud Platform)
-- **Maven** (Build tool)
+- **GCP** (Hosting)
 
 ## Requisitos Previos
-
-- JDK 21+
+- JDK 21
 - Maven 3.8+
-- Docker (opcional)
-- PostgreSQL 15+
+- Docker & Docker Compose
+- PostgreSQL 16+
 
-## Configuración Local
+## Instalación Local
 
-### 1. Clonar el repositorio
 ```bash
+# Clonar repositorio
 git clone https://github.com/iagop03/train-backend.git
 cd train-backend
-```
 
-### 2. Variables de Entorno
-```bash
-cp .env.example .env
-# Editar .env con tus valores
-```
-
-### 3. Construir el proyecto
-```bash
+# Instalar dependencias
 mvn clean install
-```
 
-### 4. Ejecutar la aplicación
-```bash
+# Configurar variables de entorno
+cp .env.example .env
+
+# Iniciar base de datos
+docker-compose up -d
+
+# Ejecutar aplicación
 mvn spring-boot:run
 ```
 
-La aplicación estará disponible en `http://localhost:8080`
-
 ## Estructura del Proyecto
-
 ```
-src/
-├── main/
-│   ├── java/com/train/
-│   │   ├── config/          # Configuraciones
-│   │   ├── controller/       # REST Controllers
-│   │   ├── service/          # Lógica de negocio
-│   │   ├── repository/       # Acceso a datos
-│   │   ├── entity/           # Entidades JPA
-│   │   ├── dto/              # Data Transfer Objects
-│   │   ├── exception/        # Excepciones personalizadas
-│   │   └── security/         # Configuración de seguridad
-│   └── resources/
-│       ├── application.yml   # Configuración principal
-│       └── application-*.yml # Configuraciones por ambiente
-└── test/
-    └── java/com/train/      # Tests unitarios e integración
+train-backend/
+├── src/main/java/com/train/
+│   ├── controller/
+│   ├── service/
+│   ├── repository/
+│   ├── entity/
+│   ├── dto/
+│   ├── config/
+│   └── exception/
+├── src/test/
+├── src/main/resources/
+│   ├── application.yml
+│   └── application-{profile}.yml
+└── docker-compose.yml
 ```
 
-## API Endpoints
-
-### Autenticación
-- `POST /api/v1/auth/login` - Login
-- `POST /api/v1/auth/logout` - Logout
-- `POST /api/v1/auth/refresh` - Refresh token
-
-### Usuarios
-- `GET /api/v1/users/{id}` - Obtener usuario
-- `PUT /api/v1/users/{id}` - Actualizar usuario
-- `DELETE /api/v1/users/{id}` - Eliminar usuario
-
-### Entrenamientos
-- `GET /api/v1/workouts` - Listar entrenamientos
-- `POST /api/v1/workouts` - Crear entrenamiento
-- `GET /api/v1/workouts/{id}` - Obtener entrenamiento
-- `PUT /api/v1/workouts/{id}` - Actualizar entrenamiento
-- `DELETE /api/v1/workouts/{id}` - Eliminar entrenamiento
+## Variables de Entorno
+```properties
+SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/train_db
+SPRING_DATASOURCE_USERNAME=train_user
+SPRING_DATASOURCE_PASSWORD=train_pass
+MONGODB_URI=mongodb+srv://...
+KEYCLOAK_SERVER_URL=https://keycloak.example.com
+GCP_PROJECT_ID=your-project-id
+```
 
 ## Testing
-
 ```bash
 # Ejecutar todos los tests
 mvn test
 
-# Ejecutar tests específicos
-mvn test -Dtest=NombreClaseTest
-
-# Con coverage
+# Ejecutar con cobertura
 mvn test jacoco:report
+
+# Ver reporte
+open target/site/jacoco/index.html
 ```
 
-## Contribuir
+## API Documentation
+La documentación Swagger está disponible en: `http://localhost:8080/swagger-ui.html`
 
-1. Crear una rama: `git checkout -b feature/TRAIN-XXX`
-2. Hacer cambios y commits: `git commit -am 'Add feature'`
-3. Push a la rama: `git push origin feature/TRAIN-XXX`
-4. Crear Pull Request
+## Deployment
+Ver [DEPLOYMENT.md](./docs/DEPLOYMENT.md) para instrucciones de deployment a GCP.
 
-## Branch Protection
-
-Las siguientes reglas están configuradas en `main` y `develop`:
-- Requerir pull request reviews (mínimo 2)
-- Requerir que los checks pasen antes de mergear
-- Requerir commits signados
-- Descartar aprobaciones obsoletas
-- Requerir actualización antes de mergear
-
-## Documentación
-
-- [API Docs](docs/API.md)
-- [Architecture](docs/ARCHITECTURE.md)
-- [Contributing Guide](CONTRIBUTING.md)
+## Contribución
+Por favor revisa [CONTRIBUTING.md](./CONTRIBUTING.md) antes de hacer cambios.
 
 ## Licencia
-
 MIT
