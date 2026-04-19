@@ -1,111 +1,37 @@
 spring:
   application:
     name: train-backend
-  config:
-    import: optional:configserver:http://localhost:8888
-
-  # PostgreSQL Cloud SQL Configuration
-  datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:train_db}
-    username: ${DB_USER:train_user}
-    password: ${DB_PASSWORD:train_password}
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
-
-  # JPA/Hibernate Configuration
-  jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-      ddl-auto: validate
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-        use_sql_comments: true
-    show-sql: false
-
-  # Flyway Configuration
-  flyway:
-    enabled: true
-    baseline-on-migrate: false
-    baseline-version: 0
-    baseline-description: "<< Flyway Baseline >>"
-    locations: classpath:db/migration
-    sql-migration-prefix: V
-    sql-migration-separator: __
-    sql-migration-suffixes: .sql
-    encoding: UTF-8
-    validate-on-migrate: true
-    clean-disabled: true
-    schemas:
-      - public
-    table: flyway_schema_history
-    placeholders:
-      app_user: train_user
-      app_schema: public
-
-  # MongoDB Atlas Configuration
-  data:
-    mongodb:
-      uri: mongodb+srv://${MONGO_USER:admin}:${MONGO_PASSWORD:password}@${MONGO_CLUSTER:cluster.mongodb.net}/${MONGO_DB:train_db}?retryWrites=true&w=majority
-      auto-index-creation: true
-
-  # Security - Keycloak
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/train}
-          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:8080/realms/train/protocol/openid-connect/certs}
-
-  # Jackson Configuration
-  jackson:
-    serialization:
-      write-dates-as-timestamps: false
-    default-property-inclusion: non_null
-
-  # Actuator Configuration
-  management:
-    endpoints:
-      web:
-        exposure:
-          include: health,info,metrics,prometheus
-    endpoint:
-      health:
-        show-details: when-authorized
-    metrics:
-      export:
-        prometheus:
-          enabled: true
+          issuer-uri: http://localhost:8080/realms/train
+          jwk-set-uri: http://localhost:8080/realms/train/protocol/openid-connect/certs
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  datasource:
+    url: jdbc:postgresql://localhost:5432/train_db
+    username: train_user
+    password: ${DB_PASSWORD:train_password}
+    driver-class-name: org.postgresql.Driver
+  data:
+    mongodb:
+      uri: mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}/train?retryWrites=true&w=majority
+      database: train
 
 server:
-  port: ${SERVER_PORT:8080}
+  port: 8081
   servlet:
     context-path: /api
-  compression:
-    enabled: true
-    min-response-size: 1024
 
 logging:
   level:
     root: INFO
     com.train: DEBUG
     org.springframework.security: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-  file:
-    name: logs/train-backend.log
-    max-size: 10MB
-    max-history: 10
-
-app:
-  version: @project.version@
-  name: @project.name@

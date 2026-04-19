@@ -1,41 +1,32 @@
 spring:
   application:
-    name: train-backend
-  profiles:
-    active: test
-
-  datasource:
-    url: jdbc:postgresql://localhost:5432/train_test
-    username: trainuser
-    password: trainpass
-    driver-class-name: org.postgresql.Driver
-
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-    show-sql: false
-
-  data:
-    mongodb:
-      uri: mongodb://localhost:27017/train_test
-      auto-index-creation: true
-
+    name: train-backend-test
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8080/auth/realms/train
-          jwk-set-uri: http://localhost:8080/auth/realms/train/protocol/openid-connect/certs
+          issuer-uri: http://localhost:8080/realms/train
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/train_test
+
+server:
+  port: 0
 
 logging:
   level:
-    root: INFO
+    root: WARN
     com.train: DEBUG
     org.springframework.security: DEBUG
-    org.springframework.data: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

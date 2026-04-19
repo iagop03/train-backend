@@ -1,46 +1,31 @@
 spring:
-  datasource:
-    url: ${DB_URL}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      maximum-pool-size: 30
-      minimum-idle: 10
-      connection-timeout: 30000
-
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://${KEYCLOAK_DOMAIN}/realms/train
+          jwk-set-uri: https://${KEYCLOAK_DOMAIN}/realms/train/protocol/openid-connect/certs
   jpa:
     hibernate:
       ddl-auto: validate
     show-sql: false
-    properties:
-      hibernate:
-        format_sql: false
-
-  flyway:
-    enabled: true
-    baseline-on-migrate: false
-    validate-on-migrate: true
-    clean-disabled: true
-    locations: classpath:db/migration
-
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:5432/train_db
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
   data:
     mongodb:
-      uri: ${MONGO_URI}
+      uri: mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}/train?retryWrites=true&w=majority
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
 
 logging:
   level:
     root: WARN
     com.train: INFO
-    org.springframework.security: WARN
-    org.flywaydb: INFO
-  file:
-    name: logs/train-backend.log
-    max-size: 50MB
-    max-history: 30
-
-server:
-  port: 8080
-  compression:
-    enabled: true
-    min-response-size: 1024
